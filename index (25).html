@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DecodeLens | CrestNova Technologies</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:#050b18;color:#fff}
+header{padding:28px 22px;background:radial-gradient(circle at top left,#0f1f3a,#050b18);border-bottom:1px solid #1c2742}
+header h1{font-size:40px;font-weight:800;letter-spacing:-1px}
+header h1 span{color:#45d3ff}
+header p{margin-top:6px;font-size:15px;color:#9aa4b2}
+.container{padding:22px}
+.card{background:linear-gradient(145deg,#0d1a32,#071225);border-radius:18px;padding:20px;margin-bottom:18px;box-shadow:0 10px 25px rgba(0,0,0,.4)}
+.card h2{font-size:22px;font-weight:700;margin-bottom:8px}
+.card p{font-size:14px;color:#aab4c2;margin-bottom:14px}
+.btn{padding:12px 20px;border-radius:14px;border:none;background:#45d3ff;color:#02111f;font-weight:700;font-size:14px;cursor:pointer;margin-right:8px}
+.btn.outline{background:transparent;border:1px solid #45d3ff;color:#45d3ff}
+input,textarea{width:100%;padding:12px;border-radius:12px;border:1px solid #1c2742;background:#050b18;color:#fff;margin-bottom:12px}
+.notice{font-size:12px;color:#f0c674;line-height:1.5}
+footer{text-align:center;padding:22px;font-size:13px;color:#7e8898;border-top:1px solid #1c2742}
+</style>
+</head>
+<body>
+<header>
+<h1>Decode<span>Lens</span></h1>
+<p>By CrestNova Technologies</p>
+</header><div class="container"><div class="card">
+<h2>Professional Disclaimer</h2>
+<p class="notice">DecodeLens is developed for educational and research purposes only. CrestNova Technologies does not encourage or support any illegal, unethical, or malicious activities. Users are solely responsible for how they use these tools.</p>
+</div><div class="card">
+<h2>Text Encoder & Decoder</h2>
+<textarea id="textInput" placeholder="Enter text"></textarea>
+<button class="btn" onclick="encodeText()">Encode (Base64)</button>
+<button class="btn outline" onclick="decodeText()">Decode</button>
+<textarea id="textOutput" placeholder="Output"></textarea>
+</div><div class="card">
+<h2>Image Encoder (Steganography)</h2>
+<p>Hide secret text inside an image securely.</p>
+<input type="file" id="encImg" accept="image/*">
+<input type="text" id="secretMsg" placeholder="Secret message">
+<button class="btn" onclick="encodeImage()">Encode Image</button>
+<a id="downloadLink" class="btn outline" style="display:none" download="encoded-image.png">Download Image</a>
+</div><div class="card">
+<h2>Image Decoder (Steganography)</h2>
+<p>Extract hidden text from an encoded image.</p>
+<input type="file" id="decImg" accept="image/*">
+<button class="btn" onclick="decodeImage()">Decode Image</button>
+<textarea id="decodedMsg" placeholder="Decoded message"></textarea>
+</div><div class="card">
+<h2>HTML / CSS / JS / Python Decoder</h2>
+<textarea id="codeInput" placeholder="Paste Base64 encoded code"></textarea>
+<button class="btn" onclick="decodeCode()">Decode</button>
+<textarea id="codeOutput" placeholder="Decoded code"></textarea>
+</div><div class="card">
+<h2>JSON Formatter</h2>
+<textarea id="jsonInput" placeholder="Paste JSON"></textarea>
+<button class="btn" onclick="formatJSON()">Format JSON</button>
+<textarea id="jsonOutput" placeholder="Formatted JSON"></textarea>
+</div><div class="card">
+<h2>Coming Soon</h2>
+<ul style="font-size:14px;color:#aab4c2;line-height:1.6">
+<li>Advanced PDF decoding & unlocking</li>
+<li>Video & audio forensic decoding</li>
+<li>APK deep analysis</li>
+</ul>
+<p class="notice">These features are currently unavailable and will be launched in future versions.</p>
+</div></div><footer>© 2026 CrestNova Technologies · DecodeLens</footer><script>
+function encodeText(){textOutput.value=btoa(textInput.value)}
+function decodeText(){try{textOutput.value=atob(textInput.value)}catch(e){alert('Invalid encoded text')}}
+function decodeCode(){try{codeOutput.value=atob(codeInput.value)}catch(e){alert('Invalid encoded code')}}
+function formatJSON(){try{jsonOutput.value=JSON.stringify(JSON.parse(jsonInput.value),null,2)}catch(e){alert('Invalid JSON')}}
+
+// Image Encode
+function encodeImage(){
+ const file=encImg.files[0];
+ if(!file){alert('Select an image');return}
+ const img=new Image();
+ const canvas=document.createElement('canvas');
+ const ctx=canvas.getContext('2d');
+ const reader=new FileReader();
+ reader.onload=e=>img.src=e.target.result;
+ img.onload=()=>{
+  canvas.width=img.width;canvas.height=img.height;
+  ctx.drawImage(img,0,0);
+  let msg=secretMsg.value+'\0';
+  let bits='';
+  for(let i=0;i<msg.length;i++)bits+=msg.charCodeAt(i).toString(2).padStart(8,'0');
+  let data=ctx.getImageData(0,0,canvas.width,canvas.height);
+  for(let i=0;i<bits.length && i*4<data.data.length;i++){
+   data.data[i*4]=(data.data[i*4]&254)|parseInt(bits[i]);
+  }
+  ctx.putImageData(data,0,0);
+  const url=canvas.toDataURL();
+  downloadLink.href=url;
+  downloadLink.style.display='inline-block';
+ }
+ reader.readAsDataURL(file);
+}
+
+// Image Decode
+function decodeImage(){
+ const file=decImg.files[0];
+ if(!file){alert('Select an image');return}
+ const img=new Image();
+ const canvas=document.createElement('canvas');
+ const ctx=canvas.getContext('2d');
+ const reader=new FileReader();
+ reader.onload=e=>img.src=e.target.result;
+ img.onload=()=>{
+  canvas.width=img.width;canvas.height=img.height;
+  ctx.drawImage(img,0,0);
+  const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  let bits='',msg='';
+  for(let i=0;i<data.length;i+=4)bits+=(data[i]&1);
+  for(let i=0;i<bits.length;i+=8){
+   const byte=bits.substr(i,8);
+   if(byte==='00000000')break;
+   msg+=String.fromCharCode(parseInt(byte,2));
+  }
+  decodedMsg.value=msg||'No hidden message found';
+ }
+ reader.readAsDataURL(file);
+}
+</script></body>
+</html>
